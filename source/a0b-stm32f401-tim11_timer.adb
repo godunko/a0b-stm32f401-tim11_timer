@@ -70,6 +70,10 @@ package body A0B.STM32F401.TIM11_Timer is
         (A0B.STM32F401.TIM1_TRG_COM_TIM11);
       A0B.ARMv7M.NVIC_Utilities.Enable_Interrupt
         (A0B.STM32F401.TIM1_TRG_COM_TIM11);
+
+      --  Initialize A0B Timer.
+
+      A0B.Timer.Internals.Initialize;
    end Initialize;
 
    ---------------------------
