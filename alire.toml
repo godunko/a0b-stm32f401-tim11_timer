@@ -1,0 +1,21 @@
+name = "a0b_stm32f401_tim11_timer"
+description = "A0B: Timer based on STM32F401 TIM11"
+version = "0.1.0-dev"
+
+authors = ["Vadim Godunko"]
+maintainers = ["Vadim Godunko <vgodunko@gmail.com>"]
+maintainers-logins = ["godunko"]
+licenses = "Apache-2.0 WITH LLVM-exception"
+tags = ["a0b", "embedded"]
+
+project-files = ["gnat/a0b_timer_platform.gpr"]
+provides = ["a0b_timer_platform=0.1.0"]
+
+[configuration]
+generate_ada = false
+generate_c = false
+generate_gpr = true
+
+[[depends-on]]
+a0b_base = "*"
+a0b_stm32f401 = "*"
