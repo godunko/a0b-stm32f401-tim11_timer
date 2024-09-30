@@ -16,13 +16,13 @@ package body A0B.STM32F401.TIM11_Timer is
    procedure TIM1_TRG_COM_TIM11_Handler
      with Export, Convention => C, External_Name => "TIM1_TRG_COM_TIM11_Handler";
 
-   Prescaler_Divider : constant := 2_000;
+   Prescaler_Divider : constant := 1_000_000;
    --  Divider to compute number of timer peripheral clock ticks in the
-   --  0.000_5 seconds interval. This value is selected to avoid overflow
+   --  1 microsecond interval. This value is selected to avoid overflow
    --  of 16-bit prescaler at maximum frequency (84 MHz).
 
-   Span_Divider      : constant := 500_000;
-   --  Divider to compute number of 0.000_5 second ticks in the given time
+   Span_Divider      : constant := 1_000;
+   --  Divider to compute number of microsecond ticks in the given time
    --  span.
 
    ----------------
@@ -98,9 +98,14 @@ package body A0B.STM32F401.TIM11_Timer is
    is
       use type A0B.Types.Unsigned_64;
 
-      Ticks : constant A0B.Types.Unsigned_64 :=
-        A0B.Types.Unsigned_64 (A0B.Time.To_Nanoseconds (Span))
-          / A0B.Types.Unsigned_64 (Span_Divider);
+      Required_Ticks : constant A0B.Types.Unsigned_64 :=
+        A0B.Types.Unsigned_64
+          (A0B.Types.Integer_64'Max (A0B.Time.To_Nanoseconds (Span), 0))
+           / A0B.Types.Unsigned_64 (Span_Divider);
+      Ticks          : constant A0B.Types.Unsigned_64 :=
+        A0B.Types.Unsigned_64'Min
+          (Required_Ticks, A0B.Types.Unsigned_64 (A0B.Types.Unsigned_16'Last));
+      --  Limit number of ticks by counter's capacity.
 
    begin
       if Ticks = 0 then
@@ -109,22 +114,9 @@ package body A0B.STM32F401.TIM11_Timer is
          Success := False;
 
          return;
-
-      elsif Ticks <= A0B.Types.Unsigned_64 (A0B.Types.Unsigned_16'Last) then
-         --  Time stamp is achivable inside timer's counter range, configure
-         --  compare register and wait till match of the counter and given
-         --  value.
-
-         TIM11_Periph.ARR.ARR := A0B.Types.Unsigned_16 (Ticks);
-
-      else
-         --  Time stamp is far than timer's counter cycle, wait till counter
-         --  overflow.
-
-         TIM11_Periph.ARR.ARR :=
-           A0B.Types.Unsigned_16 (A0B.Types.Unsigned_16'Last);
       end if;
 
+      TIM11_Periph.ARR.ARR := A0B.Types.Unsigned_16 (Ticks);
       TIM11_Periph.EGR.UG  := True;
       TIM11_Periph.CR1.CEN := True;
       Success              := True;
