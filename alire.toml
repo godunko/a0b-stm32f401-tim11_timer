@@ -1,6 +1,6 @@
 name = "a0b_stm32f401_tim11_timer"
 description = "A0B: Timer based on STM32F401 TIM11"
-version = "0.1.0"
+version = "0.2.0-dev"
 
 authors = ["Vadim Godunko"]
 maintainers = ["Vadim Godunko <vgodunko@gmail.com>"]
